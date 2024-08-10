@@ -2,63 +2,56 @@
 
     const IMAGE = "image.png";
     console.log('Hello, World!');
-    const CIRCLE_DIAMETER = 4;
+    const CIRCLE_DIAMETER = 12;
 
-    function init() {
+    async function init() {
         const overlayCanvas = document.getElementById('overlay');
         const imageCanvas = document.getElementById('canvas');
 
         const overlayCtx = overlayCanvas.getContext('2d');
         const imageCtx = imageCanvas.getContext('2d');
 
-        const images = [];
-        for (let i = 0; i < 100; i++) {
-            const newImage = new Image();
-            newImage.src = IMAGE;
+        let images = [];
+        for (let i = 30; i < 250; i++) {
+            let newImage = new Image();
+            newImage.src = "images/" + pad(i, 4) + ".png";
             images.push(newImage);
         }
-
-        let nextSizeGenerator = getNextSizeGenerator();
+        // images = [images[0]];
+        let imageIndex = 0;
+        await Promise.all(images.map(imageLoaded));
         for (const image of images) {
-            const size = nextSizeGenerator();
-            image.src = IMAGE;
-            image.onload = function () {
+            // image.onload = function () {
                 imageCanvas.width = image.width;
                 imageCanvas.height = image.height;
                 overlayCanvas.width = image.width;
                 overlayCanvas.height = image.height;
-                imageCtx.drawImage(image, 0, 0);
-                // drawBubble(100, 100, 100, 'red', overlayCtx);
-                const imageData = imageCtx.getImageData(0, 0, image.width, image.height);
-                // return
-                for (let i = 0; i < image.width / CIRCLE_DIAMETER; i++) {
+                setTimeout(() => {
+                    imageCtx.drawImage(image, 0, 0);
+                    const imageData = imageCtx.getImageData(0, 0, image.width, image.height);
                     for (let j = 0; j < image.height / CIRCLE_DIAMETER; j++) {
-                        y = j * CIRCLE_DIAMETER + CIRCLE_DIAMETER / 2;
-                        x = i * CIRCLE_DIAMETER + CIRCLE_DIAMETER / 2;
-                        const imgColor =  extractPixelColor(image.width, y, x, imageData.data);
-                        let color = `rgb(${imgColor.red}, ${imgColor.green}, ${imgColor.blue})`
-                        // console.log(color);
-                        drawBubble(x, y, (Math.random() + size) * CIRCLE_DIAMETER / 2, color, overlayCtx);
+                        for (let i = 0; i < image.width / CIRCLE_DIAMETER; i++) {
+                            // setTimeout(() => {
+                                y = j * CIRCLE_DIAMETER + CIRCLE_DIAMETER / 2;
+                                x = i * CIRCLE_DIAMETER + CIRCLE_DIAMETER / 2;
+                                const imgColor =  extractPixelColor(image.width, y, x, imageData.data);
+                                let color = `rgb(${imgColor.red}, ${imgColor.green}, ${imgColor.blue})`
+                                drawBubble(x, y, CIRCLE_DIAMETER / 2, color, overlayCtx);
+                            // }, (j * image.width / CIRCLE_DIAMETER + i) * 0.1);
+                        }
                     }
-                }
-            }
+                }, imageIndex * (1000 / 24));
+                imageIndex++;
+            // }
         }
     }
 
-    function getNextSizeGenerator() {
-        const upperBound = 0.55;
-        const lowerBound = 0.45;
-        const velocity = 0.005;
-        let size = 0.5;
-        let direction = 1;
-        return function () {
-            size += direction * velocity;
-            if (size >= upperBound || size <= lowerBound) {
-                direction *= -1;
+    function imageLoaded(image) {
+        return new Promise((resolve, reject) => {
+            image.onload = function () {
+                resolve();
             }
-            // console.log(size);
-            return size;
-        }
+        });
     }
 
 
@@ -86,6 +79,12 @@
         ctx.fillStyle = color;
         ctx.fill();
         // console.log('Bubble has been drawn!');
+    }
+
+    function pad(num, size) {
+        num = num.toString();
+        while (num.length < size) num = "0" + num;
+        return num;
     }
 
     window.addEventListener('load', function () {
