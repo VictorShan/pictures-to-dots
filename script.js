@@ -12,9 +12,9 @@
         const imageCtx = imageCanvas.getContext('2d');
 
         let images = [];
-        for (let i = 30; i < 250; i++) {
+        for (let i = 1; i < 269; i++) {
             let newImage = new Image();
-            newImage.src = "images/" + pad(i, 4) + ".png";
+            newImage.src = "images2/" + pad(i, 4) + ".png";
             images.push(newImage);
         }
         // images = [images[0]];
@@ -37,7 +37,7 @@
                                 const imgColor =  extractPixelColor(image.width, y, x, imageData.data);
                                 let color = `rgb(${imgColor.red}, ${imgColor.green}, ${imgColor.blue})`
                                 drawBubble(x, y, CIRCLE_DIAMETER / 2, color, overlayCtx);
-                            // }, (j * image.width / CIRCLE_DIAMETER + i) * 0.1);
+                            // }, (j * image.width / CIRCLE_DIAMETER + i) * 50);
                         }
                     }
                 }, imageIndex * (1000 / 24));
